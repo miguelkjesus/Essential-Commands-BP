@@ -3,6 +3,7 @@ import { Entity, Vector3 } from "@minecraft/server";
 export interface Home {
   name: string;
   location: Vector3;
+  dimensionId: string;
 }
 
 export class PlayerRepo {

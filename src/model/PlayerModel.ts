@@ -1,27 +1,12 @@
-import { Entity, Vector3, system, world } from "@minecraft/server";
+import { Entity, Vector3 } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import { Home, PlayerRepo } from "../repo/PlayerRepo";
 import { MappedObject } from "../MappedObject";
 
-export { Home };
+let instances = new MappedObject<Record<string, PlayerModel>>();
 
 export class PlayerModel {
-  private static instances = new MappedObject<Record<string, PlayerModel>>();
   private cache = new MappedObject<{ homes?: Home[] }>();
-
-  // clear cache every tick since dynamic properties may have changed
-  private static _cacheCleaner = system.runInterval(() => {
-    for (let instance of this.instances.values()) instance.clearCache();
-  });
-
-  // clear instance cache for a player when they leave to avoid memory leaks
-  private static _instanceCleaner = world.afterEvents.entityRemove.subscribe(
-    (ev) => {
-      for (let instance of this.instances.values()) {
-        let id = instance.entity.id;
-        if (id === ev.removedEntityId) this.instances.delete(id);
-      }
-    }
-  );
 
   /** The entity associated with this model. */
   readonly entity: Entity;
@@ -31,7 +16,7 @@ export class PlayerModel {
   }
 
   static get(entity: Entity): PlayerModel {
-    return this.instances.get(entity.id, new this(entity), true);
+    return instances.get(entity.id, new this(entity), true);
   }
 
   /** Clear the dynamic property cache. */
@@ -50,7 +35,18 @@ export class PlayerModel {
    */
   getHome(name: string): Home {
     name = name.toLowerCase();
-    return this.getHomes().find((home) => name === home.name);
+    return this.getHomes().find((home) => name === home.name.toLowerCase());
+  }
+
+  /**
+   * Gets an existing home, or returns undefined if it doesn't exist.
+   * @param name The name of the home.
+   */
+  getHomeIndex(name: string): number {
+    name = name.toLowerCase();
+    return this.getHomes().findIndex(
+      (home) => name === home.name.toLowerCase()
+    );
   }
 
   /**
@@ -66,14 +62,29 @@ export class PlayerModel {
    * @param name The name of the new home.
    * @param location The location of the new home.
    */
-  setHome(name: string, location: Vector3): void {
-    let existing = this.getHome(name);
+  setHome(name: string, location: Vector3, dimensionId: string): void {
+    let existingIdx = this.getHomeIndex(name);
 
-    if (existing === undefined) {
-      this.setHomes([...this.getHomes(), { name, location }]);
+    let newHome: Home = { name, location, dimensionId };
+
+    if (existingIdx === -1) {
+      this.setHomes([...this.getHomes(), newHome]);
     } else {
-      existing.location = location;
+      let homes = this.getHomes();
+      homes.splice(existingIdx, 1, newHome);
+      this.setHomes(homes);
     }
+  }
+
+  /**
+   * Rename a player's home.
+   * @param name The home's name.
+   * @param newName The home's new name.
+   */
+  renameHome(name: string, newName: string): void {
+    let homes = this.getHomes();
+    homes[this.getHomeIndex(name)].name = newName;
+    this.setHomes(homes);
   }
 
   /** Clears the player's homes. */
@@ -86,15 +97,30 @@ export class PlayerModel {
    * @param name The name of the home.
    * @returns Whether the home existed before removal.
    */
-  removeHome(name: string): boolean {
+  removeHome(name: string): Home {
     let homes = this.getHomes();
-    let existingIdx = homes.findIndex((home) => name === home.name);
+    let existingIdx = this.getHomeIndex(name);
 
     if (existingIdx === -1) {
-      return false;
+      return undefined;
     } else {
-      this.setHomes(homes.splice(existingIdx, 1));
-      return true;
+      let home = homes[existingIdx];
+      homes.splice(existingIdx, 1);
+      this.setHomes(homes);
+      return home;
     }
   }
 }
+
+// clear cache every tick since dynamic properties may have changed
+system.runInterval(() => {
+  for (let instance of instances.values()) instance.clearCache();
+});
+
+// clear instance cache for a player when they leave to avoid memory leaks
+world.afterEvents.entityRemove.subscribe((ev) => {
+  for (let instance of instances.values()) {
+    let id = instance.entity.id;
+    if (id === ev.removedEntityId) instances.delete(id);
+  }
+});
