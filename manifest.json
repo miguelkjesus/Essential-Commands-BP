@@ -20,7 +20,7 @@
       "type": "script",
       "language": "javascript",
       "uuid": "75f823e9-77e1-4265-925c-a5aa9c47fd66",
-      "entry": "dist/main.js",
+      "entry": "scripts/main.js",
       "version": [1, 0, 0]
     }
   ],

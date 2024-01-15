@@ -3,19 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "@mhesus/mcbe-commands": "^1.0.2"
+    "@mhesus/mcbe-commands": "^1.0.3"
   },
   "devDependencies": {
     "@minecraft/server": "^1.9.0-beta.1.20.60-preview.23",
     "@minecraft/server-ui": "^1.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.10.4",
-    "esbuild": "^0.19.11",
     "minimist": "^1.2.8",
     "rimraf": "5.0.5",
+    "rollup": "^4.9.5",
+    "tslib": "^2.6.2",
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "build": "node build.mjs"
+    "build": "rimraf scripts && rollup --config rollup.config.mjs",
+    "build-w": "rimraf scripts && rollup --config rollup.config.mjs --watch"
   },
   "author": "",
   "license": "ISC"
