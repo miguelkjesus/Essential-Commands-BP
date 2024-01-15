@@ -1,0 +1,22 @@
+{
+  "name": "essential-commands-bp",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@mhesus/mcbe-commands": "^1.0.2"
+  },
+  "devDependencies": {
+    "@minecraft/server": "^1.9.0-beta.1.20.60-preview.23",
+    "@minecraft/server-ui": "^1.1.0",
+    "@types/node": "^20.10.4",
+    "esbuild": "^0.19.11",
+    "minimist": "^1.2.8",
+    "rimraf": "5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "author": "",
+  "license": "ISC"
+}

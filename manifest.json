@@ -1,0 +1,33 @@
+{
+  "format_version": 2,
+  "metadata": {
+    "authors": ["bridge."]
+  },
+  "header": {
+    "name": "Essential Commands",
+    "description": "",
+    "min_engine_version": [1, 20, 40],
+    "uuid": "0a0bc707-c864-4c51-bbe3-0d9562a7c02c",
+    "version": [1, 0, 0]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "82fd7ee1-6d98-4b45-a52a-6313f710b82b",
+      "version": [1, 0, 0]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "75f823e9-77e1-4265-925c-a5aa9c47fd66",
+      "entry": "dist/main.js",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.8.0-beta"
+    }
+  ]
+}
